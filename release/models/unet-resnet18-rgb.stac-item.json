@@ -1,0 +1,248 @@
+{
+  "type": "Feature",
+  "stac_version": "1.1.0",
+  "stac_extensions": [
+    "https://stac-extensions.github.io/mlm/v1.5.1/schema.json",
+    "https://stac-extensions.github.io/version/v1.2.0/schema.json",
+    "https://stac-extensions.github.io/classification/v2.0.0/schema.json",
+    "https://stac-extensions.github.io/file/v2.1.0/schema.json",
+    "https://stac-extensions.github.io/raster/v1.1.0/schema.json"
+  ],
+  "id": "chesapeakersc-v2-unet-resnet18-rgb",
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          -80.52,
+          36.54
+        ],
+        [
+          -74.69,
+          36.54
+        ],
+        [
+          -74.69,
+          42.75
+        ],
+        [
+          -80.52,
+          42.75
+        ],
+        [
+          -80.52,
+          36.54
+        ]
+      ]
+    ]
+  },
+  "bbox": [
+    -80.52,
+    36.54,
+    -74.69,
+    42.75
+  ],
+  "properties": {
+    "title": "ChesapeakeRSC v2 U-Net ResNet-18 (RGB) road segmentation",
+    "description": "Binary road segmentation under tree-canopy occlusion from 0.6 m NAIP aerial imagery (RGB). U-Net with an ImageNet-pretrained ResNet-18 encoder, trained on the ChesapeakeRSC v2 core split (1024x1024 px patches at native resolution) from Chesapeake Bay watershed states.",
+    "datetime": null,
+    "start_datetime": "2021-01-01T00:00:00Z",
+    "end_datetime": "2022-12-31T23:59:59Z",
+    "license": "MIT",
+    "version": "1",
+    "keywords": [
+      "road",
+      "semantic-segmentation",
+      "naip",
+      "aerial-imagery",
+      "tree-canopy-occlusion"
+    ],
+    "mlm:name": "chesapeakersc-v2-unet-resnet18-rgb",
+    "mlm:architecture": "UNet",
+    "mlm:tasks": [
+      "semantic-segmentation"
+    ],
+    "mlm:framework": "PyTorch",
+    "mlm:framework_version": "2.6.0",
+    "mlm:accelerator": "cuda",
+    "mlm:accelerator_constrained": false,
+    "mlm:batch_size_suggestion": 16,
+    "mlm:memory_size": 57423818,
+    "mlm:total_parameters": 14328354,
+    "mlm:pretrained": true,
+    "mlm:pretrained_source": "ImageNet (torchvision ResNet-18 weights via segmentation_models_pytorch)",
+    "mlm:input": [
+      {
+        "name": "image",
+        "bands": [
+          {
+            "name": "red"
+          },
+          {
+            "name": "green"
+          },
+          {
+            "name": "blue"
+          }
+        ],
+        "input": {
+          "shape": [
+            -1,
+            3,
+            -1,
+            -1
+          ],
+          "dim_order": [
+            "batch",
+            "bands",
+            "height",
+            "width"
+          ],
+          "data_type": "float32"
+        },
+        "description": "Height and width must be multiples of 32. Trained on 1024x1024 px chips at 0.6 m GSD.",
+        "value_scaling": [
+          {
+            "type": "scale",
+            "value": 255.0
+          },
+          {
+            "type": "scale",
+            "value": 255.0
+          },
+          {
+            "type": "scale",
+            "value": 255.0
+          }
+        ],
+        "resize_type": null,
+        "pre_processing_function": null
+      }
+    ],
+    "mlm:output": [
+      {
+        "name": "logits",
+        "tasks": [
+          "semantic-segmentation"
+        ],
+        "result": {
+          "shape": [
+            -1,
+            2,
+            -1,
+            -1
+          ],
+          "dim_order": [
+            "batch",
+            "channel",
+            "height",
+            "width"
+          ],
+          "data_type": "float32"
+        },
+        "classification:classes": [
+          {
+            "name": "background",
+            "value": 0,
+            "description": "Non-road pixels"
+          },
+          {
+            "name": "road",
+            "value": 1,
+            "description": "Road pixels, visible or occluded by tree canopy",
+            "color_hint": "FFFFFF"
+          }
+        ],
+        "post_processing_function": null,
+        "description": "Per-pixel class logits; argmax over the channel axis gives the class map."
+      }
+    ],
+    "mlm:hyperparameters": {
+      "epochs": 100,
+      "batch_size": 16,
+      "optimizer": "AdamW",
+      "learning_rate": 0.001,
+      "scheduler": "cosine",
+      "loss": "cross_entropy"
+    },
+    "eval:core_test_road_recall": 0.756,
+    "eval:core_test_road_precision": 0.826,
+    "eval:core_test_road_f1": 0.79
+  },
+  "links": [
+    {
+      "rel": "cite-as",
+      "href": "https://doi.org/10.48550/arXiv.2401.06762",
+      "title": "Seeing the Roads Through the Trees: A Benchmark for Modeling Spatial Dependencies with Aerial Imagery"
+    },
+    {
+      "rel": "derived_from",
+      "href": "https://huggingface.co/datasets/isaaccorley/chesapeakersc-v2",
+      "title": "ChesapeakeRSC v2 dataset"
+    }
+  ],
+  "assets": {
+    "model": {
+      "href": "https://huggingface.co/isaaccorley/chesapeakersc-v2/resolve/f1d48b9f966b737815a1640561aca43de6d107aa/unet-resnet18-rgb.onnx",
+      "type": "application/octet-stream; application=onnx",
+      "title": "ONNX model (RGB), dynamic batch/height/width",
+      "roles": [
+        "mlm:model",
+        "mlm:weights"
+      ],
+      "mlm:artifact_type": "onnx",
+      "raster:bands": [
+        {
+          "name": "red"
+        },
+        {
+          "name": "green"
+        },
+        {
+          "name": "blue"
+        }
+      ],
+      "file:size": 57318361,
+      "file:checksum": "1220f8561f25d64508028ce7b7c97e4f9fb5d5a01cc0f370a3ced146177f93154e2d"
+    },
+    "checkpoint": {
+      "href": "https://huggingface.co/isaaccorley/chesapeakersc-v2/resolve/f1d48b9f966b737815a1640561aca43de6d107aa/unet-resnet18-rgb.pt",
+      "type": "application/octet-stream; framework=pytorch",
+      "title": "PyTorch state_dict for smp.Unet(resnet18, in_channels=3, classes=2)",
+      "roles": [
+        "mlm:model",
+        "mlm:weights"
+      ],
+      "mlm:artifact_type": "torch.save",
+      "raster:bands": [
+        {
+          "name": "red"
+        },
+        {
+          "name": "green"
+        },
+        {
+          "name": "blue"
+        }
+      ],
+      "file:size": 57423818,
+      "file:checksum": "12205d1eda1a3f7c887c22ba50f74fa6ab8af679225ab1d876b8a856a37a3150bbba"
+    },
+    "source-code": {
+      "href": "https://github.com/isaaccorley/ChesapeakeRSCv2",
+      "type": "text/html",
+      "title": "Training and evaluation code",
+      "roles": [
+        "code"
+      ]
+    },
+    "readme": {
+      "href": "https://huggingface.co/isaaccorley/chesapeakersc-v2/resolve/f1d48b9f966b737815a1640561aca43de6d107aa/README.md",
+      "type": "text/markdown",
+      "title": "Model card",
+      "roles": [
+        "metadata"
+      ]
+    }
+  }
+}
